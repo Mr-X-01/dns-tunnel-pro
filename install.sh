@@ -515,7 +515,8 @@ echo -e "${BLUE}/opt/dns-tunnel-pro/INSTALL_INFO.txt${NC}\n"
 echo -e "${RED}⚠  IMPORTANT: Change admin password after first login!${NC}\n"
 
 # Ask to start service
-read -p "Start DNS Tunnel service now? [Y/n]: " START_NOW
+echo -e "${YELLOW}Start DNS Tunnel service now? [Y/n]: ${NC}"
+read START_NOW < /dev/tty
 if [[ "$START_NOW" != "n" ]] && [[ "$START_NOW" != "N" ]]; then
     systemctl enable dns-tunnel
     systemctl start dns-tunnel
