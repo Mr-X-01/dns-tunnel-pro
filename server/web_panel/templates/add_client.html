@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить клиента - DNS Tunnel Pro{% endblock %}
+
+{% block content %}
+<h2 style="color: white; margin-bottom: 2rem;">➕ Добавить нового клиента</h2>
+
+<div class="card">
+    <form method="POST">
+        <div class="form-group">
+            <label for="name">Имя клиента *</label>
+            <input type="text" id="name" name="name" required placeholder="Например: Мой ноутбук">
+        </div>
+        
+        <div class="form-group">
+            <label for="notes">Заметки (опционально)</label>
+            <textarea id="notes" name="notes" placeholder="Дополнительная информация о клиенте..."></textarea>
+        </div>
+        
+        <div class="form-group" style="border: 2px dashed #667eea; padding: 1.5rem; border-radius: 5px; background: #f8f9fa;">
+            <h4 style="color: #667eea; margin-bottom: 1rem;">ℹ️ Информация</h4>
+            <p style="margin-bottom: 0.5rem;">После создания клиента вы получите:</p>
+            <ul style="margin-left: 1.5rem; line-height: 1.8;">
+                <li>Уникальный Client ID</li>
+                <li>Ключ шифрования AES-256</li>
+                <li>Конфигурационный файл для подключения</li>
+            </ul>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-success">Создать клиента</button>
+            <a href="{{ url_for('clients_list') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

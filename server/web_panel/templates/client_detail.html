@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.name }} - DNS Tunnel Pro{% endblock %}
+
+{% block content %}
+<h2 style="color: white; margin-bottom: 2rem;">📱 {{ client.name }}</h2>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>Информация о клиенте</h3>
+        <div class="actions">
+            <a href="{{ url_for('download_config', client_id=client.id) }}" class="btn btn-success">📥 Скачать конфиг</a>
+            <form method="POST" action="{{ url_for('toggle_client', client_id=client.id) }}" style="display: inline;">
+                {% if client.is_active %}
+                    <button type="submit" class="btn btn-secondary">⏸ Отключить</button>
+                {% else %}
+                    <button type="submit" class="btn btn-success">▶ Включить</button>
+                {% endif %}
+            </form>
+            <form method="POST" action="{{ url_for('delete_client', client_id=client.id) }}" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этого клиента?');">
+                <button type="submit" class="btn btn-danger">🗑 Удалить</button>
+            </form>
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div>
+            <h4 style="color: #7f8c8d; margin-bottom: 0.5rem;">Client ID</h4>
+            <code style="background: #ecf0f1; padding: 0.5rem; border-radius: 3px; display: block; word-break: break-all;">{{ client.client_id }}</code>
+        </div>
+        
+        <div>
+            <h4 style="color: #7f8c8d; margin-bottom: 0.5rem;">Статус</h4>
+            <p>
+                {% if client.is_active %}
+                    {% if client.last_seen and (now - client.last_seen).seconds < 300 %}
+                        <span class="badge badge-success">● Онлайн</span>
+                    {% else %}
+                        <span class="badge badge-warning">○ Оффлайн</span>
+                    {% endif %}
+                {% else %}
+                    <span class="badge badge-danger">✕ Отключен</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <div>
+            <h4 style="color: #7f8c8d; margin-bottom: 0.5rem;">Дата создания</h4>
+            <p>{{ client.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        </div>
+        
+        <div>
+            <h4 style="color: #7f8c8d; margin-bottom: 0.5rem;">Последняя активность</h4>
+            <p>
+                {% if client.last_seen %}
+                    {{ client.last_seen.strftime('%Y-%m-%d %H:%M:%S') }}
+                {% else %}
+                    Никогда не подключался
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid" style="margin-top: 2rem;">
+    <div class="stat-card">
+        <h3>Отправлено</h3>
+        <div class="value" style="color: #3498db; font-size: 1.8rem;">
+            {% if client.bytes_sent > 1073741824 %}
+                {{ "%.2f"|format(client.bytes_sent / 1073741824) }} GB
+            {% elif client.bytes_sent > 1048576 %}
+                {{ "%.2f"|format(client.bytes_sent / 1048576) }} MB
+            {% elif client.bytes_sent > 1024 %}
+                {{ "%.2f"|format(client.bytes_sent / 1024) }} KB
+            {% else %}
+                {{ client.bytes_sent }} B
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Получено</h3>
+        <div class="value" style="color: #9b59b6; font-size: 1.8rem;">
+            {% if client.bytes_received > 1073741824 %}
+                {{ "%.2f"|format(client.bytes_received / 1073741824) }} GB
+            {% elif client.bytes_received > 1048576 %}
+                {{ "%.2f"|format(client.bytes_received / 1048576) }} MB
+            {% elif client.bytes_received > 1024 %}
+                {{ "%.2f"|format(client.bytes_received / 1024) }} KB
+            {% else %}
+                {{ client.bytes_received }} B
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Всего трафика</h3>
+        <div class="value" style="font-size: 1.8rem;">
+            {% set total = client.bytes_sent + client.bytes_received %}
+            {% if total > 1073741824 %}
+                {{ "%.2f"|format(total / 1073741824) }} GB
+            {% elif total > 1048576 %}
+                {{ "%.2f"|format(total / 1048576) }} MB
+            {% elif total > 1024 %}
+                {{ "%.2f"|format(total / 1024) }} KB
+            {% else %}
+                {{ total }} B
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if client.notes %}
+<div class="card" style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 1rem;">📝 Заметки</h3>
+    <p style="white-space: pre-wrap;">{{ client.notes }}</p>
+</div>
+{% endif %}
+
+<div class="card" style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 1rem;">🚀 Подключение клиента</h3>
+    <p style="margin-bottom: 1rem;">Скачайте конфигурационный файл и выполните команды на клиентском устройстве:</p>
+    
+    <div class="code-block">
+# 1. Скачайте конфиг (используйте кнопку выше)<br>
+<br>
+# 2. Установите клиент (если еще не установлен):<br>
+curl -sSL https://YOUR_SERVER_IP:8443/install-client.sh | bash<br>
+<br>
+# 3. Подключитесь используя конфиг:<br>
+dns-tunnel-client connect {{ client.name.replace(' ', '_') }}_config.json<br>
+<br>
+# 4. Проверьте подключение:<br>
+curl --socks5 127.0.0.1:1080 https://ipinfo.io
+    </div>
+</div>
+
+<div style="margin-top: 2rem;">
+    <a href="{{ url_for('clients_list') }}" class="btn btn-secondary">← Назад к списку</a>
+</div>
+{% endblock %}

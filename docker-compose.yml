@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  dns-tunnel-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: dns-tunnel-server
+    restart: unless-stopped
+    ports:
+      - "53:53/udp"
+      - "8443:8443"
+    volumes:
+      - ./server/database:/app/database
+      - ./server/config:/app/config
+      - ./server/logs:/app/logs
+      - ./server/ssl:/app/ssl
+    environment:
+      - FLASK_ENV=production
+      - DNS_DOMAIN=${DNS_DOMAIN:-tunnel.example.com}
+      - DOH_RESOLVER=${DOH_RESOLVER:-https://common.dot.dns.yandex.net/dns-query}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+    networks:
+      - dns-tunnel-net
+    cap_add:
+      - NET_ADMIN
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+  socks-proxy:
+    build:
+      context: ./server/proxy
+      dockerfile: Dockerfile
+    container_name: dns-tunnel-proxy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1080:1080"
+    networks:
+      - dns-tunnel-net
+    depends_on:
+      - dns-tunnel-server
+
+networks:
+  dns-tunnel-net:
+    driver: bridge
+
+volumes:
+  db-data:
+  ssl-certs:

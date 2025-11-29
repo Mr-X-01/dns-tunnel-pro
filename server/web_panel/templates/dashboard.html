@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DNS Tunnel Pro{% endblock %}
+
+{% block content %}
+<h2 style="color: white; margin-bottom: 2rem;">📊 Dashboard</h2>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Всего клиентов</h3>
+        <div class="value">{{ total_clients }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Активных</h3>
+        <div class="value" style="color: #2ecc71;">{{ active_clients }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Трафик</h3>
+        <div class="value" style="font-size: 1.8rem;">
+            {% if total_traffic > 1073741824 %}
+                {{ "%.2f"|format(total_traffic / 1073741824) }} GB
+            {% elif total_traffic > 1048576 %}
+                {{ "%.2f"|format(total_traffic / 1048576) }} MB
+            {% elif total_traffic > 1024 %}
+                {{ "%.2f"|format(total_traffic / 1024) }} KB
+            {% else %}
+                {{ total_traffic }} B
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>Последние клиенты</h3>
+        <a href="{{ url_for('add_client') }}" class="btn">+ Добавить клиента</a>
+    </div>
+    
+    {% if clients %}
+    <table>
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Client ID</th>
+                <th>Статус</th>
+                <th>Последняя активность</th>
+                <th>Трафик</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients[:10] %}
+            <tr>
+                <td><strong>{{ client.name }}</strong></td>
+                <td><code style="font-size: 0.85rem;">{{ client.client_id[:16] }}...</code></td>
+                <td>
+                    {% if client.last_seen and (now - client.last_seen).seconds < 300 %}
+                        <span class="badge badge-success">● Онлайн</span>
+                    {% elif client.last_seen %}
+                        <span class="badge badge-warning">○ Оффлайн</span>
+                    {% else %}
+                        <span class="badge badge-danger">✕ Не подключался</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if client.last_seen %}
+                        {{ client.last_seen.strftime('%Y-%m-%d %H:%M') }}
+                    {% else %}
+                        Никогда
+                    {% endif %}
+                </td>
+                <td>
+                    {% set total = client.bytes_sent + client.bytes_received %}
+                    {% if total > 1048576 %}
+                        {{ "%.1f"|format(total / 1048576) }} MB
+                    {% elif total > 1024 %}
+                        {{ "%.1f"|format(total / 1024) }} KB
+                    {% else %}
+                        {{ total }} B
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('client_detail', client_id=client.id) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Подробнее</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #95a5a6;">
+        <p style="font-size: 1.2rem;">Пока нет клиентов</p>
+        <p>Создайте первого клиента, чтобы начать</p>
+        <a href="{{ url_for('add_client') }}" class="btn" style="margin-top: 1rem;">+ Создать клиента</a>
+    </div>
+    {% endif %}
+</div>
+
+{% if clients %}
+<div class="card">
+    <h3 style="margin-bottom: 1rem;">Быстрый старт</h3>
+    <div class="code-block">
+# На клиентском компьютере (Linux):<br>
+curl -sSL https://YOUR_SERVER_IP:8443/install-client.sh | bash<br>
+dns-tunnel-client connect config.json
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh stats every 30 seconds
+    setInterval(function() {
+        fetch('{{ url_for("api_stats") }}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Stats updated:', data);
+                // Update stats on page without reload if needed
+            })
+            .catch(error => console.error('Error fetching stats:', error));
+    }, 30000);
+</script>
+{% endblock %}

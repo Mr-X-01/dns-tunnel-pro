@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Клиенты - DNS Tunnel Pro{% endblock %}
+
+{% block content %}
+<h2 style="color: white; margin-bottom: 2rem;">👥 Управление клиентами</h2>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>Все клиенты ({{ clients|length }})</h3>
+        <a href="{{ url_for('add_client') }}" class="btn">+ Добавить клиента</a>
+    </div>
+    
+    {% if clients %}
+    <table>
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Client ID</th>
+                <th>Создан</th>
+                <th>Статус</th>
+                <th>Последняя активность</th>
+                <th>↓ Отправлено</th>
+                <th>↑ Получено</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td><strong>{{ client.name }}</strong></td>
+                <td><code style="font-size: 0.85rem;">{{ client.client_id[:12] }}...</code></td>
+                <td>{{ client.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if client.is_active %}
+                        {% if client.last_seen and (now - client.last_seen).seconds < 300 %}
+                            <span class="badge badge-success">● Онлайн</span>
+                        {% else %}
+                            <span class="badge badge-warning">○ Оффлайн</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="badge badge-danger">✕ Отключен</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if client.last_seen %}
+                        {{ client.last_seen.strftime('%Y-%m-%d %H:%M') }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if client.bytes_sent > 1048576 %}
+                        {{ "%.1f"|format(client.bytes_sent / 1048576) }} MB
+                    {% elif client.bytes_sent > 1024 %}
+                        {{ "%.1f"|format(client.bytes_sent / 1024) }} KB
+                    {% else %}
+                        {{ client.bytes_sent }} B
+                    {% endif %}
+                </td>
+                <td>
+                    {% if client.bytes_received > 1048576 %}
+                        {{ "%.1f"|format(client.bytes_received / 1048576) }} MB
+                    {% elif client.bytes_received > 1024 %}
+                        {{ "%.1f"|format(client.bytes_received / 1024) }} KB
+                    {% else %}
+                        {{ client.bytes_received }} B
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    <a href="{{ url_for('client_detail', client_id=client.id) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Подробнее</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #95a5a6;">
+        <p style="font-size: 1.2rem;">Нет клиентов</p>
+        <p>Создайте первого клиента для начала работы</p>
+        <a href="{{ url_for('add_client') }}" class="btn" style="margin-top: 1rem;">+ Создать клиента</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
