@@ -77,7 +77,11 @@ echo -e "${GREEN}[+] Server IP: $SERVER_IP${NC}"
 # Validate domain format
 validate_domain() {
     local domain=$1
-    if [[ $domain =~ ^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$ ]]; then
+    # Domain must contain at least one dot and valid characters
+    if [[ ! "$domain" =~ \. ]]; then
+        return 1
+    fi
+    if [[ "$domain" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$ ]]; then
         return 0
     else
         return 1
