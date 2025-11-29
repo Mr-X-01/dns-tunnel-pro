@@ -44,6 +44,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# No TTY check - we'll use /dev/tty for reading input
+
 echo -e "${GREEN}[+] Starting DNS Tunnel Pro installation...${NC}\n"
 
 # Detect OS
@@ -110,7 +112,7 @@ echo -e "${CYAN}╚════════════════════�
 # Ask for domain
 while true; do
     echo -e "${YELLOW}[?] Enter your domain (e.g., tunnel.example.com): ${NC}"
-    read DNS_DOMAIN
+    read DNS_DOMAIN < /dev/tty
     
     if [ -z "$DNS_DOMAIN" ]; then
         echo -e "${RED}[!] Domain cannot be empty${NC}"
@@ -128,7 +130,7 @@ done
 # Ask for email (for Let's Encrypt)
 while true; do
     echo -e "${YELLOW}[?] Enter your email for Let's Encrypt SSL: ${NC}"
-    read LETSENCRYPT_EMAIL
+    read LETSENCRYPT_EMAIL < /dev/tty
     
     if [ -z "$LETSENCRYPT_EMAIL" ]; then
         echo -e "${RED}[!] Email cannot be empty${NC}"
@@ -146,7 +148,7 @@ done
 # Ask for web panel port
 DEFAULT_PORT=$(generate_random_port)
 echo -e "${YELLOW}[?] Web panel port (default: $DEFAULT_PORT, range: 10000-60000): ${NC}"
-read WEB_PANEL_PORT
+read WEB_PANEL_PORT < /dev/tty
 
 if [ -z "$WEB_PANEL_PORT" ]; then
     WEB_PANEL_PORT=$DEFAULT_PORT
@@ -170,7 +172,7 @@ echo -e "${GREEN}[✓] Web panel will run on port: $WEB_PANEL_PORT${NC}"
 # Ask for admin password
 while true; do
     echo -e "${YELLOW}[?] Set admin password (min 8 characters): ${NC}"
-    read -s ADMIN_PASSWORD
+    read -s ADMIN_PASSWORD < /dev/tty
     echo
     
     if [ -z "$ADMIN_PASSWORD" ]; then
@@ -184,7 +186,7 @@ while true; do
     fi
     
     echo -e "${YELLOW}[?] Confirm password: ${NC}"
-    read -s ADMIN_PASSWORD_CONFIRM
+    read -s ADMIN_PASSWORD_CONFIRM < /dev/tty
     echo
     
     if [ "$ADMIN_PASSWORD" != "$ADMIN_PASSWORD_CONFIRM" ]; then
