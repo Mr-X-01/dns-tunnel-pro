@@ -203,13 +203,33 @@ echo -e "${BLUE}[*] Creating directory structure...${NC}"
 mkdir -p /opt/dns-tunnel-pro
 cd /opt/dns-tunnel-pro
 
-# Clone or copy files
-if [ -d "/tmp/dns-tunnel-pro" ]; then
-    cp -r /tmp/dns-tunnel-pro/* .
+# Clone repository
+echo -e "${BLUE}[*] Downloading DNS Tunnel Pro from GitHub...${NC}"
+if command -v git >/dev/null 2>&1; then
+    # Use git clone
+    rm -rf /tmp/dns-tunnel-clone
+    git clone https://github.com/Mr-X-01/dns-tunnel-pro.git /tmp/dns-tunnel-clone >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        cp -r /tmp/dns-tunnel-clone/* .
+        rm -rf /tmp/dns-tunnel-clone
+        echo -e "${GREEN}[✓] Files downloaded successfully${NC}"
+    else
+        echo -e "${RED}[!] Failed to clone repository${NC}"
+        exit 1
+    fi
 else
-    echo -e "${YELLOW}[*] Copying current directory files...${NC}"
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    cp -r "$SCRIPT_DIR"/* .
+    # Fallback to wget
+    wget -q https://github.com/Mr-X-01/dns-tunnel-pro/archive/refs/heads/main.zip -O /tmp/dns-tunnel.zip
+    if [ $? -eq 0 ]; then
+        apt-get install -y unzip >/dev/null 2>&1
+        unzip -q /tmp/dns-tunnel.zip -d /tmp/
+        cp -r /tmp/dns-tunnel-pro-main/* .
+        rm -rf /tmp/dns-tunnel.zip /tmp/dns-tunnel-pro-main
+        echo -e "${GREEN}[✓] Files downloaded successfully${NC}"
+    else
+        echo -e "${RED}[!] Failed to download repository${NC}"
+        exit 1
+    fi
 fi
 
 # Create Python virtual environment
