@@ -281,17 +281,17 @@ if command -v ufw >/dev/null 2>&1; then
     ufw default allow outgoing >/dev/null 2>&1
     
     # Allow SSH (important!)
-    ufw allow 22/tcp comment 'SSH' >/dev/null 2>&1
+    ufw allow 22/tcp comment "SSH" >/dev/null 2>&1
     
     # Allow DNS (UDP port 53)
-    ufw allow 53/udp comment 'DNS Tunnel' >/dev/null 2>&1
+    ufw allow 53/udp comment "DNS Tunnel" >/dev/null 2>&1
     
     # Allow web panel port
-    ufw allow $WEB_PANEL_PORT/tcp comment 'Web Panel' >/dev/null 2>&1
+    ufw allow $WEB_PANEL_PORT/tcp comment "Web Panel" >/dev/null 2>&1
     
     # Allow HTTP/HTTPS for Let's Encrypt
-    ufw allow 80/tcp comment 'HTTP (Let\'s Encrypt)' >/dev/null 2>&1
-    ufw allow 443/tcp comment 'HTTPS' >/dev/null 2>&1
+    ufw allow 80/tcp comment "HTTP (Lets Encrypt)" >/dev/null 2>&1
+    ufw allow 443/tcp comment "HTTPS" >/dev/null 2>&1
     
     # Reload UFW
     ufw reload >/dev/null 2>&1
