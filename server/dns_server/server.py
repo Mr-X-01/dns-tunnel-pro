@@ -10,7 +10,7 @@ from dnslib.server import DNSServer, BaseResolver
 import requests
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import os
 
 logger = logging.getLogger(__name__)
