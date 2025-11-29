@@ -109,9 +109,8 @@ echo -e "${CYAN}╚════════════════════�
 
 # Ask for domain
 while true; do
-    echo -e "${YELLOW}"
-    read -p "[?] Enter your domain (e.g., tunnel.example.com): " DNS_DOMAIN
-    echo -e "${NC}"
+    echo -e "${YELLOW}[?] Enter your domain (e.g., tunnel.example.com): ${NC}"
+    read DNS_DOMAIN
     
     if [ -z "$DNS_DOMAIN" ]; then
         echo -e "${RED}[!] Domain cannot be empty${NC}"
@@ -128,9 +127,8 @@ done
 
 # Ask for email (for Let's Encrypt)
 while true; do
-    echo -e "${YELLOW}"
-    read -p "[?] Enter your email for Let's Encrypt SSL: " LETSENCRYPT_EMAIL
-    echo -e "${NC}"
+    echo -e "${YELLOW}[?] Enter your email for Let's Encrypt SSL: ${NC}"
+    read LETSENCRYPT_EMAIL
     
     if [ -z "$LETSENCRYPT_EMAIL" ]; then
         echo -e "${RED}[!] Email cannot be empty${NC}"
@@ -147,9 +145,8 @@ done
 
 # Ask for web panel port
 DEFAULT_PORT=$(generate_random_port)
-echo -e "${YELLOW}"
-read -p "[?] Web panel port (default: $DEFAULT_PORT, range: 10000-60000): " WEB_PANEL_PORT
-echo -e "${NC}"
+echo -e "${YELLOW}[?] Web panel port (default: $DEFAULT_PORT, range: 10000-60000): ${NC}"
+read WEB_PANEL_PORT
 
 if [ -z "$WEB_PANEL_PORT" ]; then
     WEB_PANEL_PORT=$DEFAULT_PORT
@@ -172,9 +169,9 @@ echo -e "${GREEN}[✓] Web panel will run on port: $WEB_PANEL_PORT${NC}"
 
 # Ask for admin password
 while true; do
-    echo -e "${YELLOW}"
-    read -sp "[?] Set admin password (min 8 characters): " ADMIN_PASSWORD
-    echo -e "${NC}"
+    echo -e "${YELLOW}[?] Set admin password (min 8 characters): ${NC}"
+    read -s ADMIN_PASSWORD
+    echo
     
     if [ -z "$ADMIN_PASSWORD" ]; then
         echo -e "${RED}[!] Password cannot be empty${NC}"
@@ -186,9 +183,9 @@ while true; do
         continue
     fi
     
-    echo -e "${YELLOW}"
-    read -sp "[?] Confirm password: " ADMIN_PASSWORD_CONFIRM
-    echo -e "${NC}"
+    echo -e "${YELLOW}[?] Confirm password: ${NC}"
+    read -s ADMIN_PASSWORD_CONFIRM
+    echo
     
     if [ "$ADMIN_PASSWORD" != "$ADMIN_PASSWORD_CONFIRM" ]; then
         echo -e "${RED}[!] Passwords do not match${NC}"
