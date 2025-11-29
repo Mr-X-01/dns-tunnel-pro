@@ -190,12 +190,20 @@ def create_app(config, dns_server):
         """Download client configuration"""
         client = Client.query.get_or_404(client_id)
         
+        # Get server info from config
+        server_domain = config.get('server', {}).get('domain', config['dns']['domain'])
+        web_panel_port = config['web_panel']['port']
+        
         config_data = {
             'client_id': client.client_id,
             'encryption_key': client.encryption_key,
             'dns_domain': config['dns']['domain'],
             'doh_resolver': config['dns']['doh_resolver'],
-            'socks5_port': config['proxy']['socks5_port']
+            'socks5_port': config['proxy']['socks5_port'],
+            'server_info': {
+                'domain': server_domain,
+                'web_panel_port': web_panel_port
+            }
         }
         
         # Save to temp file
